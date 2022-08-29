@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
 import Searchbar from './components/Searchbar.js'
+import AddIcon from '@mui/icons-material/Add';
 
-import { Box, Container, styled, Typography } from '@mui/material';
+import { Box, Container, IconButton, styled, Typography } from '@mui/material';
 
 import { useSelector } from 'react-redux'
 
-const ExerciseBase = styled(Box)(({ theme }) => ({
+const ExerciseBase = styled(Box , {
+  shouldForwardProp : (prop) => prop !=="handleadd"
+})(({ theme,handleadd }) => ({
 position: 'relative',
 display: 'block',
 padding: 0,
 borderRadius: 0,
 height: '10vh',
-widht: '70vw',
+widht: handleadd ? '80%' : '80vw',
 [theme.breakpoints.down('md')]: {
   width: '100% !important',
   height: 100,
@@ -45,9 +48,9 @@ widht: '70vw',
 },
 }));
 
-const RenderedExercise = ({exercise}) => {
+const RenderedExercise = ({exercise,handleadd=false}) => {
   return (
-        <ExerciseBase >
+        <ExerciseBase handleadd={true}>
         <Box
           sx={{
             position: 'absolute',
@@ -86,15 +89,24 @@ const RenderedExercise = ({exercise}) => {
           sx={{
             display:"flex",
           }}>
-            <Typography
-            component="h3">tracked:</Typography>
-          {exercise.type.map((e,index) => <Typography key={index} color="inherit" sx={{ml:.5}}>{e}</Typography>)}
-          </Box>
+          { handleadd ? null : <Typography component="h3">tracked:</Typography>}
+          {handleadd ?
+            (<IconButton variant="contained" color="secondary" onClick={handleadd(exercise.id)}><AddIcon/></IconButton>
+            ) : (
+           exercise.type.map((e,index) =>( 
+           <Typography 
+           key={index} 
+           color="inherit" 
+           sx={{ml:.5}}
+           >
+            {e}
+           </Typography>))
+           )}
           </Box>
         </Box>
+        </Box>
       </ExerciseBase>
-)
-  ;
+);
 }
 
 const filterData = (query, data) => {
@@ -105,7 +117,7 @@ const filterData = (query, data) => {
   }
 };
 
-export default function Index () {
+export default function Index ({handleadd}) {
   const [searchQuery, setSearchQuery] = useState("");
   const exercises = useSelector(state => state.exercisesList);
   let dataFiltered = filterData(searchQuery, exercises);;
@@ -136,10 +148,14 @@ export default function Index () {
       e.preventDefault();
       dataFiltered = filterData(searchQuery, exercises);}}
     />
-    <Container component="section" sx={{mt:8, mb: 4}}>
+    <Container component="section" sx={{mb: 4}}>
       <Box sx={{ mt: 8, display: 'bloc', flexWrap: 'wrap' }}>
         {dataFiltered.map((exercise) => (
-          <RenderedExercise key={exercise.id} exercise={exercise} />
+          <RenderedExercise
+          key={exercise.id}
+          exercise={exercise}
+          handleadd={handleadd}
+          />
             ))
         }
       </Box>

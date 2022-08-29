@@ -145,10 +145,19 @@ const profilesSlice = createSlice({
     reducers : {
       ProfileAdded(state,action){
             state.push(action.payload)
-        }
+      },
+      ExerciseAdded(state,action){
+            const foundId = state.findIndex(x => x.id === action.payload.pid);
+            const foundexId = state[foundId].exworkids.findIndex(x => x.id === action.payload.xid);
+            (foundexId ? 
+              console.log("exercise already exists") 
+            : 
+              state[foundId].exworkids.push({exid:action.payload.exid,work:[]})
+            );
+      }
     }
 })
 
-export const { ProfileAdded } = profilesSlice.actions
+export const { ProfileAdded , ExerciseAdded } = profilesSlice.actions
 
 export default profilesSlice.reducer;

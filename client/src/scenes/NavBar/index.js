@@ -3,15 +3,13 @@ import {
     AppBar,
     Toolbar
   } from "@mui/material";
-import DrawerComponent from "./components/drawer";
-import SearchField from "./components/searchField"
+import DrawerComponent from "./components/drawer"
 
 function Navbar() {
   return (
     <AppBar position='sticky'>
       <Toolbar className="navbar_container">
       <DrawerComponent />
-      <SearchField></SearchField>
       </Toolbar>
     </AppBar>
 

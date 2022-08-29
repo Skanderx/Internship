@@ -99,11 +99,10 @@ function BrandHero() {
             }}
           >
             <Typography variant="h1" className="motto">
-              Hire experts to get the job done{" "}
+              Training management app{" "}
             </Typography>
             <Typography variant="h4" className="description" sx={{ margin: 0 }}>
-              We bring you the best professionals from all fields to match all
-              your needs
+              Store and view training data
             </Typography>
             <Button
               variant="contained"

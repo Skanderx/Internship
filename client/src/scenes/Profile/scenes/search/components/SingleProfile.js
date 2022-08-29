@@ -6,12 +6,7 @@ import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 
 export default function SingleProfile ({profile}) {
-    /*const {profileId} = match.params
-
-    const profile = useSelector(state => 
-        state.profiles.find((p) => p.id == profileId)
-    )*/
-
+    
     if (!profile) {
         return (
             <section>
@@ -27,7 +22,7 @@ export default function SingleProfile ({profile}) {
         borderRadius: "10px",
         marginBottom: "20px"}}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Avatar sx={{ width: 48, height: 48, mr: 1 }} />
+            <Avatar sx={{ width: 48, height: 48, mr: 1 }}  src={profile.picture} />
             <div>
             <Link to={`/profile/${profile.id}`} className="link">
             <Typography variant="body1">{profile.name}</Typography></Link>

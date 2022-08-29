@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, FormHelperText, Input, InputAdornment, MenuItem, TextField } from '@mui/material'
+import { Box, Button, Container, FormControl, FormHelperText, Input, InputAdornment, MenuItem, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import AddIcon from '@mui/icons-material/Add';
 import UploadPhoto from '../../../../components/UploadPhoto';
@@ -7,6 +7,22 @@ import { useDispatch } from 'react-redux'
 import { nanoid } from '@reduxjs/toolkit'
 
 import { ProfileAdded } from '../../services/Profiles/Profilesfeatures'
+
+function CenterContainer({ children, sx }) {
+  return (
+    <Container
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        ...sx,
+      }}
+    >
+      {children}
+    </Container>
+  );
+}
 
 export default function Index () {
   const [values,setvalues] = useState({
@@ -64,101 +80,99 @@ export default function Index () {
     }
   }
   return (
-    <Box
-      sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}}
-      noValidate
-      autoComplete="off">
-        <TextField
-          error={verify('name')} 
-          required
-          id="standard-required"
-          label="Required"
-          defaultValue="Profile name"
-          variant="standard"
-          helperText="Profile name"
-        />
-        <TextField
-          id="outlined-select-currency"
-          select
-          label="Select"
-          value={values.gender}
-          onChange={handleChange("gender")}
-          helperText="Gender"
-          variant="standard"
-        >
-          <MenuItem value={""}> don't want to say </MenuItem>
-          <MenuItem value={"m"}> male </MenuItem>
-          <MenuItem value={"f"}> female </MenuItem>
-        </TextField>
-        <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '25ch' }}>
-          <Input
-            error={verify('weight')} 
-            id="standard-adornment-weight"
-            value={values.weight}
-            onChange={handleChange('weight')}
-            endAdornment={<InputAdornment position="end">kg</InputAdornment>}
-            aria-describedby="standard-weight-helper-text"
-            inputProps={{
-              'aria-label': 'weight',
-            }}
-          />
-          <FormHelperText id="standard-weight-helper-text">Weight</FormHelperText>
-        </FormControl>
-        <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '25ch' }}>
-          <Input
-            error={verify('birthYear')} 
-            id="standard-adornment-birthYear"
-            value={values.birthYear}
-            onChange={handleChange('birthYear')}
-            endAdornment={<InputAdornment position="end">kg</InputAdornment>}
-            aria-describedby="standard-birthYear-helper-text"
-            inputProps={{
-              'aria-label': 'birth Year',
-            }}
-          />
-          <FormHelperText id="standard-birthYear-helper-text">Birth year</FormHelperText>
-        </FormControl>
-        <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '25ch' }}>
-          <Input
-            error={verify('height')} 
-            id="standard-adornment-birthYear"
-            value={values.heightm}
-            onChange={handleChange('heightm')}
-            endAdornment={<InputAdornment position="end">m</InputAdornment>}
-            aria-describedby="standard-heightm-helper-text"
-            inputProps={{
-              'aria-label': 'heightm',
-            }}
-          />
-          <FormHelperText id="standard-birthYear-helper-text">Height</FormHelperText>
-          <Input
-            error={verify('height')} 
-            id="standard-adornment-birthYear"
-            value={values.heightcm}
-            onChange={handleChange('heightcm')}
-            endAdornment={<InputAdornment position="end">cm</InputAdornment>}
-            aria-describedby="standard-heightcm-helper-text"
-            inputProps={{
-              'aria-label': 'heightcm',
-            }}
-          />
-          </FormControl>
-        <TextField
-          id="standard-multiline-static"
-          label="description"
-          multiline
-          rows={4}
-          defaultValue="description"
-          variant="standard"
-          value={values.description}
-          onChange={handleChange("description")}
-        />
-      <UploadPhoto
-      onChange={handleImageChange}
-      imageName={image ? image.name : undefined}
-      />
-      <Button onClick={onCreateClicked} variant="contained" > <AddIcon fontSize="small"/>Create</Button>
-          
-    </Box>
+  <CenterContainer sx={{ height: "100vh" }}>
+    <div style={{
+    display: "flex",
+    justifyContent: "space-between",
+    my: 1,
+    }}>
+    <TextField
+    error={!values.name}
+    required
+    value={values.name}
+    label="Required"
+    onChange={handleChange("name")}
+    variant="standard"
+    helperText="Profile name"
+    />
+    <div/>
+    <TextField
+    id="outlined-select-currency"
+    select
+    label="Select"
+    value={values.gender}
+    onChange={handleChange("gender")}
+    helperText="Gender"
+    variant="standard"
+    >
+    <MenuItem value={""}> don't want to say </MenuItem>
+    <MenuItem value={"m"}> male </MenuItem>
+    <MenuItem value={"f"}> female </MenuItem>
+    </TextField>
+    </div>
+    <TextField
+      error={verify('weight')} 
+      id="standard-adornment-weight"
+      value={values.weight}
+      onChange={handleChange('weight')}
+      aria-describedby="standard-weight-helper-text"
+      inputProps={{
+        'aria-label': 'weight',
+      }}
+      helperText="Weight in kg"
+    />
+    <TextField
+    error={verify('birthYear')} 
+    id="standard-adornment-birthYear"
+    value={values.birthYear}
+    onChange={handleChange('birthYear')}
+    aria-describedby="standard-birthYear-helper-text"
+    inputProps={{
+      'aria-label': 'birth Year',
+    }}
+    helperText="Year of birth"
+    />
+    <div style={{
+    display: "flex",
+    justifyContent: "space-between",
+    my: 1,
+    }}>
+    <TextField
+    error={verify('height')} 
+    id="standard-adornment-birthYear"
+    value={values.heightm}
+    onChange={handleChange('heightm')}
+    aria-describedby="standard-heightm-helper-text"
+    inputProps={{
+      'aria-label': 'heightm',
+    }}
+    helperText="meters"
+    />
+    <TextField
+    error={verify('height')} 
+    id="standard-adornment-birthYear"
+    value={values.heightcm}
+    onChange={handleChange('heightcm')}
+    aria-describedby="standard-heightcm-helper-text"
+    inputProps={{
+      'aria-label': 'heightcm',
+    }}
+    helperText="centimeters"      
+    />
+    </div>
+    <TextField
+    id="standard-multiline-static"
+    label="description"
+    multiline
+    rows={4}
+    value={values.description}
+    onChange={handleChange("description")}
+    />
+    <UploadPhoto
+    onChange={handleImageChange}
+    imageName={image ? image.name : undefined}
+    />
+    <Button onClick={onCreateClicked} variant="contained" > <AddIcon fontSize="small"/>Create</Button>
+  </CenterContainer>
   )
 }

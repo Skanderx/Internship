@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, Input, TextField, Typography } from '@mui/material'
+import { Box, Button, Checkbox, Container, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, Input, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import AddIcon from '@mui/icons-material/Add';
 import UploadPhoto from '../../../../components/UploadPhoto'
@@ -7,6 +7,22 @@ import { useDispatch } from 'react-redux'
 import { nanoid } from '@reduxjs/toolkit'
 
 import { ExerciseAdded } from '../../services/Exercisesfeature'
+
+function CenterContainer({ children, sx }) {
+  return (
+    <Container
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        ...sx,
+      }}
+    >
+      {children}
+    </Container>
+  );
+}
 
 export default function CreateEx () {
     const [picture, setPicture] =useState();
@@ -61,7 +77,7 @@ export default function CreateEx () {
       }
     }
     return (
-    <Box>
+    <CenterContainer sx={{ height: "100vh" }}>
       <FormControl 
       required
       component="fieldset"
@@ -117,6 +133,6 @@ export default function CreateEx () {
         />
         <Button onClick={onCreateClicked} variant="contained" > <AddIcon fontSize="small"/>Create</Button>
       
-      </Box>      
+      </CenterContainer>      
       )
 }

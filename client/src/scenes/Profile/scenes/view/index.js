@@ -1,12 +1,14 @@
-import { Box, Paper, styled, Typography } from '@mui/material'
-import React from 'react'
+import { Avatar, Backdrop, Box, Button, Paper, styled, Typography } from '@mui/material'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import Exercices from './components/exercisenames'
 import Stats from './components/exercisestats.js'
+import AddExercise from './components/addExercise'
 export default function ProfilePage() {
 
     const {profileId} = useParams();
+    const [openbackdrop,setopenbackdrop] = useState(false);
 
     const profile = useSelector(state => 
         state.profiles.find((p) => p.id == profileId)
@@ -24,6 +26,14 @@ export default function ProfilePage() {
         width: "100vw",
         height:"100vh",
     }}>
+        <Backdrop 
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={openbackdrop}
+        onClick={() => setopenbackdrop(false)}>
+         <Paper sx={{width: "90vw"}}>
+            <AddExercise pid={profile.id} exWorkIds={profile.exworkids}/>
+         </Paper>
+        </Backdrop>
         <ProfileContainer>
             <Paper className="Profilebox">
                 <Box className="ProfileName">
@@ -39,12 +49,9 @@ export default function ProfilePage() {
                    <div/>
                    <em>weight :</em>{profile.weight}
                 </Box>
-                <Box 
-                className="Profilepicture"
-                component="img"
-                src={`url(${profile.picture})`}
-                />
+                <Avatar variant="square" className="Profilepicture"  src={profile.picture} />
             </Paper>
+            <Button variant="contained"  onClick={() => setopenbackdrop(!openbackdrop)} >Add new Exercise</Button>
             <Box className="Statistics">
                 {//<Exercices/>
                 //<Stats/>
