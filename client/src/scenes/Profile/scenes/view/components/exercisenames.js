@@ -1,13 +1,6 @@
 import { Box, Button, Container,Dialog,DialogActions,DialogTitle,List,ListItem,ListItemText,styled, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux'
-import {
-    addrecord,
-    deleterecord,
-    deleteExercise,
-    addAllExercises,
-    selectExercises,
-  } from '../services/Exercises/Exercises';
+import React, { useState } from 'react'
+
 
 const ImageBackdrop = styled('div')(({ theme }) => ({
     position: 'absolute',
@@ -58,56 +51,41 @@ const ExerciseBase = styled(Box)(({ theme }) => ({
   },
 }));
 
-export default function ExerciceStats  () {
-    const exercises = useSelector(selectExercises);
-    const dispatch = useDispatch();
-    const remove = ( id ) => () => {
-      dispatch(deleterecord({id:id}));
-      console.log(id)};
-    const addstat = ( {id,record}) => () => {
-      dispatch(deleteExercise({id:id,record}));
-      console.log(id)
+export default function ExerciseName  ({openbackdrop,addstat,exercise, exworkids,remove}) {
+
+    const [confirm,setconfirm] = useState(false);
+    
+    const confirmation = () => {
+      setconfirm(true);
     };
-    const [confirm,setconfirm] = useState({addStat:false,deleteEx:false});
-    const [exercise,setexercise] = useState(exercises[0] || {name:"none"});
-    const confirmation = ( {exercise, key} ) => () => {
-      setexercise(exercise);
-      setconfirm({...confirm,[key]:!confirm[key]});
+
+    const deconfirmation = () =>{
+      setconfirm(false);
+    }
+
+    const handleClose = ( b =false ) => () => {
+      setconfirm(false);
+      if ( b ) remove(exercise.id)
     };
-    const handleClose = ({ b =false, key}) => () => {
-      setconfirm({...confirm,[key]:!confirm[key]});
-      if ( b ) { 
-        switch (key) {
-          case "deleteEx":
-            dispatch(deleteExercise({id:exercise.id}))
-          break;
-          case "addStat":
-          break;
-          default : break;
-        }
-      }
-    };
+
+    if (!exercise || !exworkids ) return <></>
     return (
     <Container component="section" sx={{mt:8, mb: 4}}>
       <Dialog
-        open={confirm.deleteEx}
-        onClose={confirmation}
+        open={confirm}
+        onClose={deconfirmation}
       ><DialogTitle id="alert-dialog-title">
-      {`Would you like to delete " ${exercise.ex.name} " from your followed exercises list?`}
+      {`Would you like to delete ${exercise.name}'s records from your history?`}
       </DialogTitle>
       <DialogActions>
-      <Button onClick={handleClose({key:"deleteEx"})}>No</Button>
-      <Button onClick={handleClose({b:true,key:"deleteEx"})} autoFocus>
+      <Button onClick={handleClose(false)}>No</Button>
+      <Button onClick={handleClose(true)} autoFocus>
         Yes
       </Button>
       </DialogActions>
       </Dialog>
       <Box sx={{ mt: 8, display: 'bloc', flexWrap: 'wrap' }}>
-        {(exercises ? 
-          exercises.map((exercise) => (
-          <ExerciseBase 
-          key={exercise.id}
-          >
+        <ExerciseBase >
           <Box
             sx={{
               position: 'absolute',
@@ -117,7 +95,7 @@ export default function ExerciceStats  () {
               bottom: 0,
               backgroundSize: 'cover',
               backgroundPosition: 'center 40%',
-              backgroundImage: `url(${exercise.ex.picture})`,
+              backgroundImage: `url(${exercise.picture})`,
             }}
           >
             <ImageBackdrop className="imageBackdrop" />
@@ -140,7 +118,7 @@ export default function ExerciceStats  () {
               color="inherit"
               className="imageTitle"
             >
-              {exercise.ex.name}
+              {exercise.name}
             </Typography>
             <Box className='options' sx={{
               margin: "15px",
@@ -148,12 +126,11 @@ export default function ExerciceStats  () {
               height:"38.1966%",
               width:"38.966%",
             }}>
-            <Button onClick={confirmation({exercise: exercise,key:"addStat"})} variant="contained"  >Add record</Button>
-            <Button onClick={confirmation({exercise: exercise,key:"deleteEx"})} variant="contained" color="error" >Delete</Button>
+            <Button onClick={openbackdrop} variant="contained"  >Add record</Button>
+            <Button onClick={confirmation} variant="contained" color="error" >Delete records</Button>
             </Box>
             </Box>
           </Box></ExerciseBase>
-        )) : null)}
       </Box>
     </Container>)
     ;

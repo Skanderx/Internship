@@ -53,11 +53,11 @@ export default function CreateEx () {
     const onCreateClicked = () => {
       if (name && !error){
         const type = [];
-        if (weight) type.push("weight");
-        if (repetitions) type.push("repetitions" );
-        if (time) type.push("time");
-        if (heartrate) type.push("heartrate");
-        if (level) type.push("level");
+        if (typecheck.weight) type.push("weight");
+        if (typecheck.repetitions) type.push("repetitions" );
+        if (typecheck.time) type.push("time");
+        if (typecheck.heartrate) type.push("heartrate");
+        if (typecheck.level) type.push("level");
         dispatch(
           ExerciseAdded({
             id: nanoid(),

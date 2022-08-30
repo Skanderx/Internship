@@ -1,18 +1,57 @@
 import { Avatar, Backdrop, Box, Button, Paper, styled, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import Exercices from './components/exercisenames'
+import Exercise from './components/exercisenames'
 import Stats from './components/exercisestats.js'
 import AddExercise from './components/addExercise'
+import AddRecord from './components/addRecord.js'
+import SelectBar from './components/selectBar'
+import { Deleterecord ,RemoveExercise } from './../../services/Profiles/Profilesfeatures'
+import { Container } from '@mui/system'
+
 export default function ProfilePage() {
 
     const {profileId} = useParams();
-    const [openbackdrop,setopenbackdrop] = useState(false);
 
     const profile = useSelector(state => 
         state.profiles.find((p) => p.id == profileId)
-    )
+    );
+
+    const exercises = useSelector(
+        state => {
+          const exIds = profile.exworkids.map((e) =>e.exid);
+          return (state.exercisesList.filter((e) => e.id in exIds))
+        }
+    );
+
+    const [exercise,setExercise] = useState(exercises[0] ||{id: Number(),name:'',type:[],picture:''} );
+    const [openbackdrop,setopenbackdrop] = useState(false);
+    const [openbackdropRecord,setopenbackdropRecord] = useState(false);
+    const dispatch = useDispatch();
+
+    const closeRecordBD = () => setopenbackdropRecord(false);
+    const openRecordBD = () => setopenbackdropRecord(true);
+    
+    const closeExBD = () => setopenbackdrop(false);
+    const openExBD = () => setopenbackdrop(true);
+
+    const removeStat = ({exercise,exid,workId}) => () => {
+      dispatch(
+        Deleterecord({profileId,exid,workId})
+      );
+      setExercise(exercise);
+    };
+    const addstat = ( {id,record}) => () => {
+      
+    };
+    const removeExercise = ( exid ) => {
+        setExercise(exercises[0]);
+        dispatch(RemoveExercise({profileId,exid}));
+    };
+    const handleChange = (event: SelectChangeEvent, value) => {
+      if (value) setExercise(value);
+    }
 
     if (!profile) {
         return (
@@ -29,10 +68,24 @@ export default function ProfilePage() {
         <Backdrop 
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={openbackdrop}
-        onClick={() => setopenbackdrop(false)}>
+        onClick={closeExBD}>
          <Paper sx={{width: "90vw"}}>
-            <AddExercise pid={profile.id} exWorkIds={profile.exworkids}/>
+            <AddExercise pid={profile.id} exworkids={profile.exworkids}/>
          </Paper>
+        </Backdrop>
+
+        <Backdrop 
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={openbackdropRecord}
+        >
+            <Paper sx={{width: "90vw"}}>
+                <AddRecord 
+                closeBD={closeRecordBD} 
+                pid={profile.id} 
+                exid={exercise.id} 
+                exercise={exercise}
+                />
+            </Paper>
         </Backdrop>
         <ProfileContainer>
             <Paper className="Profilebox">
@@ -51,12 +104,28 @@ export default function ProfilePage() {
                 </Box>
                 <Avatar variant="square" className="Profilepicture"  src={profile.picture} />
             </Paper>
-            <Button variant="contained"  onClick={() => setopenbackdrop(!openbackdrop)} >Add new Exercise</Button>
-            <Box className="Statistics">
-                {//<Exercices/>
-                //<Stats/>
-            }
-            </Box>
+            <Button variant="contained"  onClick={openExBD} >Add new Exercise</Button>
+            <Container component="section" sx={{mt:8, mb: 4}}>
+            <Box sx={{ mt: 8, display: 'bloc', flexWrap: 'wrap' }}>
+                <SelectBar
+                exercise={exercise}
+                exercises={exercises}
+                handleChange={handleChange}
+                />
+                <Exercise 
+                exercise={exercise}
+                exworkids={profile.exworkids}
+                remove={removeExercise}
+                addstat={addstat}
+                openbackdrop={openRecordBD}
+                />
+                <Stats 
+                exercise={exercise}
+                exworkids={profile.exworkids}
+                removeStat={removeStat}
+                />
+                
+            </Box></Container>
         </ProfileContainer>
     </Paper>
     )
