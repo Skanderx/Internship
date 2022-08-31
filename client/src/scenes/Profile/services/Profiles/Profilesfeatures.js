@@ -1,7 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit"
-import { deleterecord } from "../../scenes/view/services/Exercises/Exercises";
+import { createSlice , createAsyncThunk } from "@reduxjs/toolkit"
+import { client } from '../../../../services/Api/client.js'
 
-const initialState = [{
+const initialState = {
+  profiles :[{
     id: 0,
     exworkids:[
         {exid:0,work:[
@@ -138,57 +139,134 @@ const initialState = [{
                 description :"Trains to lose weight",
                 picture: "https://liveboldandbloom.com/wp-content/uploads/2021/09/Untitled_design_3_1.png",
             },
-];
+  ],
+  status: 'idle',// | 'loading' | 'succeeded' | 'failed',
+  error: null,
+};
 
 const profilesSlice = createSlice({
     name: 'Profiles',
     initialState: initialState,
     reducers : {
       ProfileAdded(state,action){
-            state.push(action.payload)
+            state.profiles.push(action.payload)
       },
       ExerciseAdded(state,action){
-            const foundIndex = state.findIndex(x => x.id ==action.payload.pid);
-            const foundExIndex = state[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
+            const foundIndex = state.profiles.findIndex(x => x.id ==action.payload.pid);
+            const foundExIndex = state.profiles[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
             (foundExIndex!==-1 ? 
               console.log("already added!") 
             : 
-              state[foundIndex].exworkids.push({
+              state.profiles[foundIndex].exworkids.push({
                 exid:action.payload.exid,
                 work:[]
               })
             );
       },
       RemoveExercise(state,action){
-        const foundIndex = state.findIndex(x => x.id ==action.payload.profileId);
-        const foundExIndex = state[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
+        const foundIndex = state.profiles.findIndex(x => x.id ==action.payload.profileId);
+        const foundExIndex = state.profiles[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
         (foundExIndex!==-1 ?
-          (state[foundIndex].exworkids)[foundExIndex].work=[]
+          (state.profiles[foundIndex].exworkids)[foundExIndex].work=[]
           : console.log("no such exercise !")
         );
       },
       RecordAdded(state,action){
-        const foundIndex = state.findIndex(x => x.id ==action.payload.pid);
-        const foundExIndex = state[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
-        (foundExIndex!==-1 ? state[foundIndex].exworkids[foundExIndex].work.push(action.payload.obj)
+        const foundIndex = state.profiles.findIndex(x => x.id ==action.payload.pid);
+        const foundExIndex = state.profiles[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
+        (foundExIndex!==-1 ? state.profiles[foundIndex].exworkids[foundExIndex].work.push(action.payload.obj)
         : console.log("no such exercise !"))
       },
       Deleterecord(state,action){
-        const foundIndex = state.findIndex(x => x.id ==action.payload.profileId);
-        const foundExIndex = state[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
+        const foundIndex = state.profiles.findIndex(x => x.id ==action.payload.profileId);
+        const foundExIndex = state.profiles[foundIndex].exworkids.findIndex(x => x.exid ==action.payload.exid);
         let foundworkIndex =-1;
         (foundExIndex!==-1 ? 
-        foundworkIndex = state[foundIndex].exworkids[foundExIndex].work.findIndex(x => x.id ==action.payload.workId) 
+        foundworkIndex = state.profiles[foundIndex].exworkids[foundExIndex].work.findIndex(x => x.id ==action.payload.workId) 
         : console.log("no such exercise !")
         );
-        (foundworkIndex!==-1 ? state[foundIndex].exworkids[foundExIndex].work.splice(foundworkIndex,1)
+        (foundworkIndex!==-1 ? state.profiles[foundIndex].exworkids[foundExIndex].work.splice(foundworkIndex,1)
         : console.log("no such record !")
         );
     
+      },
+      extraReducers(builder) {
+        builder
+          .addCase(fetchProfiles.pending, (state, action) => {
+            state.status = 'loading'
+          })
+          .addCase(fetchProfiles.fulfilled, (state, action) => {
+            state.status = 'succeeded'
+            return action.payload
+          })
+          .addCase(fetchProfiles.rejected, (state, action) => {
+            state.status = 'failed'
+            state.error = action.error.message
+          })
+
+          .addCase(addNewProfile.fulfilled, (state, action) => {
+            state.profiles.push(return action.payload)
+          })
+          .addCase(addNewRecord().fulfilled, (state, action) => {
+            state.profiles.push(return action.payload)
+          })
+          .addCase(addNewExercise().fulfilled, (state, action) => {
+            state.profiles.push(return action.payload)
+          })
+          .addCase(deleteRecord().fulfilled, (state, action) => {
+            state.profiles.push(return action.payload)
+          })
       }
     }
 })
 
 export const { ProfileAdded , ExerciseAdded , Deleterecord , RecordAdded , RemoveExercise} = profilesSlice.actions
 
+export const selectProfileById = (state,profileId) => 
+  state.profiles.profiles.find( profile => profile.id == profileId)
+;
+export const fetchProfiles = createAsyncThunk('profiles/fetchProfiles', async () =>{
+  const response = await client.get('http://localhost:9000/searchprofiles');
+  return response.data ;
+})
+
+export const addNewProfile = createAsyncThunk(
+  '/createProfile',
+  async initialProfile => {
+      const response = await client.post(
+          'http://localhost:9000/createProfile',initialProfile
+      )
+      return response.data
+  }
+)
+
+export const addNewRecord = (profileId) =>  () => createAsyncThunk(
+  '/profile:profileId',
+  async initialExercise => {
+      const response = await client.post(
+        `http://localhost:9000/profile/${profileId}/addRecord`,initialExercise
+      )
+      return response.data
+  }
+)
+
+export const addNewExercise = (profileId) =>  () =>  createAsyncThunk(
+  '/profile:profileId',
+  async initialExercise => {
+      const response = await client.post(
+        `http://localhost:9000/profile/${profileId}/addExercise`,initialExercise
+      )
+      return response.data
+  }
+)
+
+export const deleteRecord = (profileId) =>  () => createAsyncThunk(
+  '/profile:profileId',
+  async initialExercise => {
+      const response = await client.post(
+          `http://localhost:9000/profile/${profileId}/deleterecord`,initialExercise
+      )
+      return response.data
+  }
+)
 export default profilesSlice.reducer;

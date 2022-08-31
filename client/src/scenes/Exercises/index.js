@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState , useEffect } from 'react'
 import Searchbar from './components/Searchbar.js'
 import AddIcon from '@mui/icons-material/Add';
-
+import {selectAllExercises , fetchExercises } from './services/Exercisesfeature'
+import { Spinner } from '../../components/Spinner.js';
 import { Box, Container, IconButton, styled, Typography } from '@mui/material';
 
-import { useSelector } from 'react-redux'
+import { useSelector , useDispatch } from 'react-redux'
 
 const ExerciseBase = styled(Box , {
   shouldForwardProp : (prop) => prop !=="handleadd"
@@ -119,9 +120,30 @@ const filterData = (query, data) => {
 
 export default function Index ({handleadd}) {
   const [searchQuery, setSearchQuery] = useState("");
-  const exercises = useSelector(state => state.exercisesList);
+  const exercises = useSelector(selectAllExercises);
+
+  const dispatch = useDispatch();
+
+  const exerciseStatus = useSelector(state => state.exercisesList.status)
+  const error = useSelector(state => state.exercisesList.error)
+
   let dataFiltered = filterData(searchQuery, exercises);;
   
+  let content;
+  if ( exerciseStatus === 'loading'){
+    content = <Spinner />
+  } else if (exerciseStatus === 'succeeded') {
+    content = dataFiltered.map((exercise) => (
+      <RenderedExercise
+      key={exercise.id}
+      exercise={exercise}
+      handleadd={handleadd}
+      />
+      ))
+  } else if (exerciseStatus === 'failed') {
+    content =<div>{error}</div>
+  }
+
   if (!exercises) {
     return <section>
       <h2> No Exercises found!</h2>
@@ -150,14 +172,7 @@ export default function Index ({handleadd}) {
     />
     <Container component="section" sx={{mb: 4}}>
       <Box sx={{ mt: 8, display: 'bloc', flexWrap: 'wrap' }}>
-        {dataFiltered.map((exercise) => (
-          <RenderedExercise
-          key={exercise.id}
-          exercise={exercise}
-          handleadd={handleadd}
-          />
-            ))
-        }
+        {content}
       </Box>
     </Container>
     </div>

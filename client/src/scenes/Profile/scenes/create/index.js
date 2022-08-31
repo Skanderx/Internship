@@ -6,7 +6,7 @@ import UploadPhoto from '../../../../components/UploadPhoto';
 import { useDispatch } from 'react-redux'
 import { nanoid } from '@reduxjs/toolkit'
 
-import { ProfileAdded } from '../../services/Profiles/Profilesfeatures'
+import { addNewProfile } from '../../services/Profiles/Profilesfeatures'
 
 function CenterContainer({ children, sx }) {
   return (
@@ -31,7 +31,8 @@ export default function Index () {
     weight:Number(),
     heightm:Number(0),heightcm:Number(0),
     birthYear:Number(),
-    description:""});
+    description:"",
+    picture :""});
   const [image,setImage] = useState();
 
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ export default function Index () {
       case "description":
       case "name":
       case "gender" :
+      case "picture" :
         return setvalues({...values , [n]:e.target.value});
       case "birthYear":
       case "heightm":
@@ -49,10 +51,6 @@ export default function Index () {
         return setvalues({...values , [n]:+e.target.value.replace(/[^0-9]/g, '')})
       default:break;
     }}
-
-    const handleImageChange = (event) => {
-      setImage(event.target.files[0]);
-    }
 
   const verify = ()=> {
     //height >.50cm <2m
@@ -65,18 +63,21 @@ export default function Index () {
   const error = false;
   const onCreateClicked = () => {
     if ( !error && values.name) {
-      dispatch(
-        ProfileAdded({
-          id: nanoid(),
+      try {
+        dispatch(
+        addNewProfile({
           name: values.name,
           gender: values.gender,
           weight: values.weight,
           birthyear: values.birthYear,
           height: values.heightm*100+values.heightcm,
           description: values.description,
-          picture: image,
-        })
-      )
+          picture: values.picture,
+        })).unwrap()
+      } catch(err) {
+        console.error(err);
+      }
+      
     }
   }
   return (
@@ -168,11 +169,15 @@ export default function Index () {
     value={values.description}
     onChange={handleChange("description")}
     />
-    <UploadPhoto
-    onChange={handleImageChange}
-    imageName={image ? image.name : undefined}
+    <TextField
+    id="standard-multiline-static"
+    label="link to a  picture"
+    multiline
+    rows={1}
+    value={values.picture}
+    onChange={handleChange("picture")}
     />
-    <Button onClick={onCreateClicked} variant="contained" > <AddIcon fontSize="small"/>Create</Button>
+    <Button onClick={onCreateClicked} variant="contained" disabled={error} > <AddIcon fontSize="small"/>Create</Button>
   </CenterContainer>
   )
 }

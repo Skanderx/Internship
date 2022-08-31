@@ -5,7 +5,7 @@ import { nanoid } from '@reduxjs/toolkit'
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { RecordAdded } from '../../../services/Profiles/Profilesfeatures'
+import { addNewRecord } from '../../../services/Profiles/Profilesfeatures'
 
 import { Button, FormControl, FormGroup, FormLabel, Input, TextField } from '@mui/material';
 import { Container } from '@mui/system';
@@ -61,7 +61,7 @@ export default function AddRecord ({closeBD , pid , exid , exercise})  {
   const error = false;
 
   const onCreateClicked = () => {
-    let date = (new Date()).toString();
+    let date = (new Date()).toISOString();
     let obj ={id: nanoid() ,date }
     if (work.weight) obj.weight=work.weight.toString()+"kg";
     if (work.reps) obj.reps=work.reps;
@@ -71,8 +71,8 @@ export default function AddRecord ({closeBD , pid , exid , exercise})  {
     if ( !error ) {
         console.log(exid)
       dispatch(
-        RecordAdded({exid, pid , obj })
-      );
+        addNewRecord(pid)({exid, obj })
+      ).unwrap();
       setwork({
         date: Date,
         weight : '',

@@ -7,6 +7,12 @@ import { customTheme } from "./services/Theme/customTheme";
 import { ThemeProvider } from "@emotion/react";
 import { Provider } from 'react-redux';
 import store from './services/store.js'
+import { fetchExercises } from './scenes/Exercises/services/Exercisesfeature';
+import { fetchProfiles } from './scenes/Profile/services/Profiles/Profilesfeatures';
+
+store.dispatch(fetchExercises)
+store.dispatch(fetchProfiles)
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

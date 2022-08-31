@@ -6,7 +6,7 @@ import UploadPhoto from '../../../../components/UploadPhoto'
 import { useDispatch } from 'react-redux'
 import { nanoid } from '@reduxjs/toolkit'
 
-import { ExerciseAdded } from '../../services/Exercisesfeature'
+import { addNewExercise } from '../../services/Exercisesfeature'
 
 function CenterContainer({ children, sx }) {
   return (
@@ -25,15 +25,16 @@ function CenterContainer({ children, sx }) {
 }
 
 export default function CreateEx () {
-    const [picture, setPicture] =useState();
-    const [name, setName] =useState("");
+    const [picture, setPicture] = useState("");
+    const [name, setName] = useState("");
     const [typecheck, setTypecheck] = useState({
         weight : false,
         repetitions : false,
         time : false,
         heartrate : false,
-        level : false
+        level : false,
     });
+    const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
     const dispatch = useDispatch();
 
@@ -44,29 +45,25 @@ export default function CreateEx () {
         });
     };
     const handleImageChange = (event) => {
-      setPicture(event.target.files[0]);
+      setPicture(event.target.value);
     }
 
     const {weight, repetitions, time, heartrate, level } = typecheck;
-    const error = [weight, repetitions, time, heartrate, level].filter((v) => v).length == 0;
+    const error = !name || [weight, repetitions, time, heartrate, level].filter((v) => v).length == 0 || addRequestStatus !== 'idle';
 
     const onCreateClicked = () => {
-      if (name && !error){
-        const type = [];
+      if (!error){
+        let type = [];
         if (typecheck.weight) type.push("weight");
         if (typecheck.repetitions) type.push("repetitions" );
         if (typecheck.time) type.push("time");
         if (typecheck.heartrate) type.push("heartrate");
         if (typecheck.level) type.push("level");
-        dispatch(
-          ExerciseAdded({
-            id: nanoid(),
-            name,
-            type,
-            picture
-          })
-        )
-        setTypecheck({weight : false,
+        try {
+        setAddRequestStatus('pending')
+        dispatch(addNewExercise({name,type,picture})).unwrap()
+        setTypecheck({
+          weight : false,
           repetitions : false,
           time : false,
           heartrate : false,
@@ -74,7 +71,12 @@ export default function CreateEx () {
         });
         setPicture("");
         setName("");
+      } catch (err) {
+        console.error('Failed to save the post: ', err)
+      } finally {
+        setAddRequestStatus('idle')
       }
+    }
     }
     return (
     <CenterContainer sx={{ height: "100vh" }}>
@@ -94,7 +96,7 @@ export default function CreateEx () {
         inputProps={{
         'aria-label': 'Names',
         }}
-        />
+        /></FormControl>
         <FormControl
         required
         error={error}
@@ -126,13 +128,24 @@ export default function CreateEx () {
         </FormGroup>
         {(error ? <FormHelperText>pick one or more</FormHelperText> : null)}
         </FormControl>
-        </FormControl>
-        <UploadPhoto
+        <FormControl 
+        component="fieldset"
+        variant="standard"
+        sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}}
+        noValidate
+        autoComplete="off">
+        <FormLabel component="legend" >Link to a picture :</FormLabel>
+        <Input
+        id="standard-adornment-name"
+        error={false} 
+        value={picture}
         onChange={handleImageChange}
-        imageName={picture ? picture.name : undefined}
+        inputProps={{
+        'aria-label': 'Link',
+        }}
         />
-        <Button onClick={onCreateClicked} variant="contained" > <AddIcon fontSize="small"/>Create</Button>
-      
+      </FormControl>
+        <Button onClick={onCreateClicked} variant="contained" disabled={error} > <AddIcon fontSize="small"/>Create</Button>
       </CenterContainer>      
       )
 }

@@ -7,22 +7,18 @@ import Stats from './components/exercisestats.js'
 import AddExercise from './components/addExercise'
 import AddRecord from './components/addRecord.js'
 import SelectBar from './components/selectBar'
-import { Deleterecord ,RemoveExercise } from './../../services/Profiles/Profilesfeatures'
+import { deleteRecord , RemoveExercise , selectProfileById } from './../../services/Profiles/Profilesfeatures'
+import { selectExsByIds } from '../../../Exercises/services/Exercisesfeature'
 import { Container } from '@mui/system'
-
 export default function ProfilePage() {
 
     const {profileId} = useParams();
 
-    const profile = useSelector(state => 
-        state.profiles.find((p) => p.id == profileId)
-    );
-
-    const exercises = useSelector(
-        state => {
-          const exIds = profile.exworkids.map((e) =>e.exid);
-          return (state.exercisesList.filter((e) => e.id in exIds))
-        }
+    const profile = useSelector(state => selectProfileById(state,profileId));
+    
+    const exIds = profile.exworkids.map((e) =>e.exid);
+    
+    const exercises = useSelector( state => selectExsByIds(state,exIds)
     );
 
     const [exercise,setExercise] = useState(exercises[0] ||{id: Number(),name:'',type:[],picture:''} );
@@ -37,10 +33,14 @@ export default function ProfilePage() {
     const openExBD = () => setopenbackdrop(true);
 
     const removeStat = ({exercise,exid,workId}) => () => {
-      dispatch(
-        Deleterecord({profileId,exid,workId})
+      try {
+        dispatch(
+        deleteRecord(profileId)({exid,workId}).unwrap()
       );
       setExercise(exercise);
+    } catch (err) {
+        console.error(err);
+    }
     };
     const addstat = ( {id,record}) => () => {
       

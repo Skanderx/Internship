@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux';
+import React, { useState , useEffect } from 'react'
+import { useSelector , useDispatch } from 'react-redux';
+import { fetchProfiles } from '../../services/Profiles/Profilesfeatures'
 import Searchbar from './components/Searchbar.js'
 import SingleProfile from './components/SingleProfile.js';
+import { Spinner } from '../../../../components/Spinner';
 
 const filterData = (query, data) => {
   if (!query) {
@@ -13,9 +15,29 @@ const filterData = (query, data) => {
 
 export default function Index () {
   const [searchQuery, setSearchQuery] = useState("");
-  const profiles = useSelector(state => state.profiles);
+
+  const dispatch = useDispatch()
+
+  const profiles = useSelector(state => state.profiles.profiles);
+
+  const profilesStatus = useSelector(state => state.profiles.status)
+  const error = useSelector(state => state.exercisesList.error)
+
   let dataFiltered = filterData(searchQuery, profiles);;
   
+  let content;
+  if ( profilesStatus === 'loading'){
+    content = <Spinner />
+  } else if (profilesStatus === 'succeeded') {
+    content = dataFiltered.map((p) => (
+      <SingleProfile
+      key={p.id}
+      profile={p}
+      />
+    ))
+  } else if (profilesStatus === 'failed') {
+    content =<div>{error}</div>
+  }
   
   return (
     <div
@@ -37,12 +59,7 @@ export default function Index () {
       dataFiltered = filterData(searchQuery, profiles);}}
     />
     <div style={{ padding: 3 }}>
-        {dataFiltered.map((p) => (
-          <SingleProfile
-          key={p.id}
-          profile={p}
-          />
-        ))}
+        {content}
       </div>
     </div>
   )

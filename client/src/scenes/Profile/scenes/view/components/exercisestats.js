@@ -41,7 +41,7 @@ export default function Stats({
               key={row.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >  
-              <TableCell align="right"> {(new Date(row.date)).toUTCString()} </TableCell>
+              <TableCell align="right"> {(new Date(row.date)).toISOString()} </TableCell>
               {(row.weight ? (<TableCell align="right">{row.weight}</TableCell>) : (null))}
               {(row.reps ? (<TableCell align="right">{row.reps}</TableCell>) : (null))}
               {(row.averageHeartRate ? (<TableCell align="right">{row.averageHeartRate}</TableCell>) : (null))}
